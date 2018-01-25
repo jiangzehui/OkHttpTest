@@ -19,6 +19,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
 
 /**
  * Created by jiangzehui on 18/1/20.
@@ -268,15 +272,9 @@ public class OkHttpUtil {
             public void onResponse(Call call, Response response) {
                 try {
                     InputStream inputStream = response.body().byteStream();
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    int len;
-                    byte[] bytes = new byte[1024];
+                    BufferedSource bufferedSource = Okio.buffer(Okio.source(inputStream));
+                    final byte[] finalBytes = bufferedSource.readByteArray();
 
-                    while ((len = inputStream.read(bytes)) != -1) {
-                        bos.write(bytes, 0, len);
-                    }
-                    bos.flush();
-                    final byte[] finalBytes = bos.toByteArray();
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
